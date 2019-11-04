@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Invoices\Invoices.csproj" />
+    <ProjectReference Include="..\Kernel.BaseApi\Kernel.BaseApi.csproj" />
+  </ItemGroup>
+
+</Project>
