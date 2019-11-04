@@ -1,17 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Kernel.BaseApi;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Invoices;
+using Kernel.Extensions;
+using System.Reflection;
 
 namespace Api
 {
@@ -29,12 +23,15 @@ namespace Api
 
             services.AddInvoices(registerValidators: true);
 
+            services.AddSwagger<Startup>(assembly: Assembly.GetExecutingAssembly(), includeXmlComments: true, name: "v1", title: "My API", version: "v1");
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public override void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             base.Configure(app, env);
+
+            app.UseCustomSwagger("/swagger/v1/swagger.json", "My API V1");
         }
     }
 }

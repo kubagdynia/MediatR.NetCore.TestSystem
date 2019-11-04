@@ -7,6 +7,9 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
+using Microsoft.OpenApi.Models;
+using System.IO;
+using Swashbuckle.AspNetCore.Filters;
 
 namespace Kernel.Extensions
 {
@@ -45,6 +48,32 @@ namespace Kernel.Extensions
             services.AddScoped(typeof(IPipelineBehavior<,>), typeof(RequestPostProcessorBehavior<,>));
 
             return services;
+        }
+
+        public static void AddSwagger<T>(this IServiceCollection services, Assembly assembly, bool includeXmlComments = false, string name = "v1", string title = "My API", string version = "v1")
+        {
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc(name: name, new OpenApiInfo { Title = title, Version = version });
+
+                if (includeXmlComments)
+                {
+                    c.ExampleFilters();
+
+                    var xmlFile = $"{assembly.GetName().Name}.xml";
+                    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                    if (File.Exists(xmlPath))
+                    {
+                        c.IncludeXmlComments(xmlPath);
+                    }
+                }
+
+            });
+
+            if (includeXmlComments)
+            {
+                services.AddSwaggerExamplesFromAssemblyOf<T>();
+            }
         }
     }
 }

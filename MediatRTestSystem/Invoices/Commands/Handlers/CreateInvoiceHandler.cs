@@ -21,11 +21,11 @@ namespace Invoices.Commands.Handlers
         {
             CreateInvoiceCommandResponse response = new CreateInvoiceCommandResponse();
 
-            response.AddError("Error from command hadler");
-            if (response.Errors != null)
-            {
-                return Task.FromResult(response);
-            }
+            //response.AddError("Error from command hadler");
+            //if (response.Errors != null)
+            //{
+            //    return Task.FromResult(response);
+            //}
 
             var id = _invoiceRepository.Create(request.Invoice);
             response.Id = id;
