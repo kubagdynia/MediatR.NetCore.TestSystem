@@ -8,6 +8,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Invoices\Invoices.csproj" />
     <ProjectReference Include="..\Kernel.BaseApi\Kernel.BaseApi.csproj" />
+    <ProjectReference Include="..\Kernel\Kernel.csproj" />
   </ItemGroup>
 
 </Project>

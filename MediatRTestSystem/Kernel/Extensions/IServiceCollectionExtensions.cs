@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
+using Microsoft.OpenApi.Models;
 
 namespace Kernel.Extensions
 {
@@ -45,6 +46,14 @@ namespace Kernel.Extensions
             services.AddScoped(typeof(IPipelineBehavior<,>), typeof(RequestPostProcessorBehavior<,>));
 
             return services;
+        }
+
+        public static void AddSwagger(this IServiceCollection services, string name = "v1", string title = "My API", string version = "v1")
+        {
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc(name: name, new OpenApiInfo { Title = title, Version = version });
+            });
         }
     }
 }
