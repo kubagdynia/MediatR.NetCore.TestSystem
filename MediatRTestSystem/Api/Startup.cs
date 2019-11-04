@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Invoices;
 using Kernel.Extensions;
+using System.Reflection;
 
 namespace Api
 {
@@ -22,7 +23,7 @@ namespace Api
 
             services.AddInvoices(registerValidators: true);
 
-            services.AddSwagger(name: "v1", title: "My API", version: "v1");
+            services.AddSwagger<Startup>(assembly: Assembly.GetExecutingAssembly(), includeXmlComments: true, name: "v1", title: "My API", version: "v1");
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
