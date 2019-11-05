@@ -1,7 +1,5 @@
-﻿using FluentValidation;
-using Invoices.Repositories;
+﻿using Invoices.Repositories;
 using Kernel.Extensions;
-using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 

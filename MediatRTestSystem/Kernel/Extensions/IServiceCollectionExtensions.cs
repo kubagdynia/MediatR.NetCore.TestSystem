@@ -4,9 +4,7 @@ using MediatR;
 using MediatR.Pipeline;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Generic;
 using System.Reflection;
-using System.Text;
 using Microsoft.OpenApi.Models;
 using System.IO;
 using Swashbuckle.AspNetCore.Filters;
@@ -16,33 +14,24 @@ namespace Kernel.Extensions
     public static class IServiceCollectionExtensions
     {
         public static IServiceCollection AddKernel(this IServiceCollection services)
-            => AddKernel(services, new Assembly[] { }, false);
+            => AddKernel(services, Array.Empty<Assembly>());
 
         public static IServiceCollection AddKernel(this IServiceCollection services, Assembly assembly, bool registerValidators = false)
-            => AddKernel(services, new Assembly[] { assembly }, registerValidators);
+            => AddKernel(services, new[] { assembly }, registerValidators);
 
         public static IServiceCollection AddKernel(this IServiceCollection services, Assembly[] assemblies, bool registerValidators = false)
         {
-            if (registerValidators)
-            {
-                if (assemblies == null)
-                {
-                    services.AddValidatorsFromAssemblies(new[] { Assembly.GetExecutingAssembly() }, ServiceLifetime.Transient);
-                }
-                else
-                {
-                    services.AddValidatorsFromAssemblies(assemblies, ServiceLifetime.Transient);
-                }
-            }
-
             if (assemblies == null || assemblies.Length == 0)
             {
-                services.AddMediatR(new[] { Assembly.GetExecutingAssembly() });
+                assemblies = new[] { Assembly.GetExecutingAssembly() };
             }
-            else
+
+            if (registerValidators)
             {
-                services.AddMediatR(assemblies);
-            }            
+                services.AddValidatorsFromAssemblies(assemblies);
+            }
+
+            services.AddMediatR(assemblies);
 
             services.AddScoped(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
             services.AddScoped(typeof(IPipelineBehavior<,>), typeof(RequestPostProcessorBehavior<,>));
@@ -50,7 +39,12 @@ namespace Kernel.Extensions
             return services;
         }
 
-        public static void AddSwagger<T>(this IServiceCollection services, Assembly assembly, bool includeXmlComments = false, string name = "v1", string title = "My API", string version = "v1")
+        public static void AddSwagger<T>(this IServiceCollection services, bool includeXmlComments = false,
+            string name = "v1", string title = "My API", string version = "v1")
+            => AddSwagger<T>(services, typeof(T).Assembly, includeXmlComments, name, title, version);
+
+        public static void AddSwagger<T>(this IServiceCollection services, Assembly assembly, bool includeXmlComments = false,
+            string name = "v1", string title = "My API", string version = "v1")
         {
             services.AddSwaggerGen(c =>
             {
