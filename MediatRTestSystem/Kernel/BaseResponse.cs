@@ -8,8 +8,24 @@ namespace Kernel
     public class BaseResponse
     {
         public int StatusCode { get; set; }
-        private IList<Error>? errors { get; set; }
-        public IList<Error> Errors => errors ?? (errors = new List<Error>());
+
+        public IList<Error>? Errors { get; private set; }
+
+        public void AddError(string code, string message, string details, string userMessage)
+        {
+            if (Errors == null)
+            {
+                Errors = new List<Error>();
+            }
+
+            Errors.Add(new Error
+            {
+                Code = code,
+                Message = message,
+                Details = details,
+                UserMessage = userMessage
+            });
+        }
 
         public override string ToString()
         {
@@ -19,9 +35,9 @@ namespace Kernel
 
     public class Error
     {
-        public string Message { get; set; }
-        public string Code { get; set; }
-        public string Details { get; set; }
-        public string UserMessage { get; set; }
+        public string? Message { get; set; }
+        public string? Code { get; set; }
+        public string? Details { get; set; }
+        public string? UserMessage { get; set; }
     }
 }

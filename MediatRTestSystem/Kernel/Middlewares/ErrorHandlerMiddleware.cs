@@ -47,12 +47,11 @@ namespace Kernel.Middlewares
             {
                 foreach (var error in domainException.DomainErrors)
                 {
-                    baseResponse.Errors.Add(new Error
-                    {
-                        Code = error.ErrorCode,
-                        UserMessage = error.ErrorMessage,
-                        Details = error.PropertyName
-                    });
+                    baseResponse.AddError(
+                        code: error.ErrorCode,
+                        userMessage: error.ErrorMessage,
+                        details: $"Validation for '{error.PropertyName}' with value '{error.AttemptedValue}' failed in {error.ClassName}",
+                        message: "Validation failed");
                 }
             }
 

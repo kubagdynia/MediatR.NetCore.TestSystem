@@ -1,16 +1,19 @@
 ﻿using System;
 
-namespace Invoices.Models
+namespace Api.Contracts.V1.Requests
 {
-    public class Invoice
+    public class CreateInvoiceRequest
     {
-        public Guid Id { get; set; }
         public string? Number { get; set; }
         public DateTime CreationDate { get; set; }
 
-        public Invoice(Guid id, string? number, DateTime creationDate)
+        public CreateInvoiceRequest()
         {
-            Id = id;
+
+        }
+
+        public CreateInvoiceRequest(string? number, DateTime creationDate)
+        {
             Number = number;
             CreationDate = creationDate;
         }

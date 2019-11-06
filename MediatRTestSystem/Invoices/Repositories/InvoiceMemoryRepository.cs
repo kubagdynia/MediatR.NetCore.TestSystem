@@ -9,15 +9,13 @@ namespace Invoices.Repositories
     {
         private static readonly List<Invoice> Invoices = new List<Invoice>
         {
-            new Invoice{Id = Guid.NewGuid(), Number = "1/1/2019", CreationDate = DateTime.UtcNow },
-            new Invoice{Id = Guid.NewGuid(), Number = "1/2/2019", CreationDate = DateTime.UtcNow }
+            new Invoice(id: Guid.NewGuid(), number: "1/1/2019", creationDate: DateTime.UtcNow ),
+            new Invoice(id: Guid.NewGuid(), number: "1/2/2019", creationDate: DateTime.UtcNow )
         };
 
         public Guid Create(Invoice invoice)
         {
-            invoice.Id = Guid.NewGuid();
             Invoices.Add(invoice);
-
             return invoice.Id;
         }
 

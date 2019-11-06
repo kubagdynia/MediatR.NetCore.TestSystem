@@ -35,6 +35,10 @@ namespace Kernel.BaseApi
             {
                 options.JsonSerializerOptions.IgnoreNullValues = BaseJsonOptions.IgnoreNullValues;
                 options.JsonSerializerOptions.PropertyNamingPolicy = BaseJsonOptions.PropertyNamingPolicy;
+                
+            }).ConfigureApiBehaviorOptions(options =>
+            {
+                options.SuppressModelStateInvalidFilter = false;
             });
 
             services.AddKernel();

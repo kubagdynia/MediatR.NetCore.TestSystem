@@ -39,7 +39,8 @@ namespace Kernel.Behaviors
 
             foreach (ValidationFailure error in errors)
             {
-                exception.AddDomainError(error.ErrorCode, error.ErrorMessage, error.PropertyName, error.AttemptedValue, GetErrorType(error.Severity));
+                exception.AddDomainError(error.ErrorCode, error.ErrorMessage, error.PropertyName, error.AttemptedValue,
+                    typeof(TRequest).Name, GetErrorType(error.Severity));
             }
 
             throw exception;
