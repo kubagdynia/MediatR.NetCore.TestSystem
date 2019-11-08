@@ -10,6 +10,7 @@ using MediatR;
 using MediatR.Pipeline;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -21,6 +22,8 @@ namespace Kernel.BaseApi
 {
     public abstract class BaseStartup
     {
+        private bool _cacheResponse;
+
         public BaseStartup(IConfiguration configuration)
         {
             Configuration = configuration;
