@@ -1,4 +1,4 @@
-﻿using Kernel;
+﻿using Kernel.Responses.Domain;
 using System;
 
 namespace Invoices.Commands

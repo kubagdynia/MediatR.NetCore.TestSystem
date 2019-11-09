@@ -1,4 +1,6 @@
-﻿namespace Api.Contracts.V1.Responses
+﻿using Kernel.Responses.Api;
+
+namespace Api.Contracts.V1.Responses
 {
     public class InvoiceResponse : Response<InvoiceDto>
     {

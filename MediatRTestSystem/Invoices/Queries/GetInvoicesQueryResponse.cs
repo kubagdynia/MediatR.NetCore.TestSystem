@@ -1,8 +1,6 @@
 ﻿using Invoices.Models;
-using Kernel;
-using System;
+using Kernel.Responses.Domain;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Invoices.Queries
 {

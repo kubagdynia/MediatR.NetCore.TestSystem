@@ -1,14 +1,17 @@
-﻿using System;
+﻿using Kernel.Responses.Api;
+using System;
 
 namespace Api.Contracts.V1.Responses
 {
-    public class CreateInvoiceResponse
+    public class CreateInvoiceResponse : Response<IdDto>
     {
-        public Guid Id { get; set; }
-
-        public CreateInvoiceResponse(Guid id)
+        public CreateInvoiceResponse(IdDto result, int statusCode) : base(result, statusCode)
         {
-            Id = id;
+        }
+
+        public CreateInvoiceResponse(Guid id, int statusCode) : base(new IdDto(id), statusCode)
+        {
+
         }
     }
 }

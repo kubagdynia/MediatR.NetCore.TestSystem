@@ -1,20 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using Kernel.Serializers;
+using System.Collections.Generic;
+using System.Text.Json;
 
-namespace Api.Contracts.V1.Responses
+namespace Kernel.Responses
 {
-    public class Response<T>
+    public abstract class BaseResponse
     {
         public int StatusCode { get; set; }
 
         public IList<Error>? Errors { get; private set; }
-
-        public T Result { get; set; }
-
-        public Response(T result, int statusCode)
-        {
-            Result = result;
-            StatusCode = statusCode;
-        }
 
         public void AddError(string code, string message, string details, string userMessage)
         {
@@ -30,6 +24,11 @@ namespace Api.Contracts.V1.Responses
                 Details = details,
                 UserMessage = userMessage
             });
+        }
+
+        public override string ToString()
+        {
+            return JsonSerializer.Serialize(this, BaseJsonOptions.GetJsonSerializerOptions);
         }
     }
 

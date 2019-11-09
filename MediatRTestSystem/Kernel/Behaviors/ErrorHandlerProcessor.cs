@@ -1,4 +1,5 @@
 ﻿using Kernel.Exceptions;
+using Kernel.Responses.Domain;
 using MediatR.Pipeline;
 using System.Linq;
 using System.Threading;

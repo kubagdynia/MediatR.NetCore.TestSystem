@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Kernel.Responses.Api;
+using System.Collections.Generic;
 
 namespace Api.Contracts.V1.Responses
 {

@@ -66,15 +66,9 @@ namespace Api.Controllers.V1
                 return NotFound("Not found");
             }
 
-            //var response = new InvoiceResponse(result.Invoice.Id, result.Invoice.Number, result.Invoice.CreationDate);
-
             var response = new InvoiceResponse(
                 new InvoiceDto(result.Invoice.Id, result.Invoice.Number, result.Invoice.CreationDate),
                 StatusCodes.Status200OK);
-
-            //var response = new Response<InvoiceResponse>(
-            //    new InvoiceResponse(result.Invoice.Id, result.Invoice.Number, result.Invoice.CreationDate),
-            //    StatusCodes.Status200OK);
 
             return Ok(response);
         }
@@ -88,12 +82,14 @@ namespace Api.Controllers.V1
         /// <returns>Id of invoice created</returns>
         [HttpPost]
         [ProducesResponseType(type: typeof(CreateInvoiceResponse), statusCode: StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CreateInvoice([FromBody] CreateInvoiceRequest request)
         {
             CreateInvoiceCommandResponse result = await _mediator.Send(
                 new CreateInvoiceCommand(new Invoice(id: Guid.NewGuid(), number: request.Number, creationDate: request.CreationDate)));
 
-            return Ok(new CreateInvoiceResponse(result.Id));
+            return CreatedAtAction(nameof(GetInvoice), new GetInvoiceRequest { Id = result.Id },
+                new CreateInvoiceResponse(result.Id, StatusCodes.Status201Created));
         }
 
         /// <summary>
@@ -114,7 +110,7 @@ namespace Api.Controllers.V1
                 return NoContent();
             }
 
-            return NotFound();
+            return NotFound("Not found");
         }
     }
 }

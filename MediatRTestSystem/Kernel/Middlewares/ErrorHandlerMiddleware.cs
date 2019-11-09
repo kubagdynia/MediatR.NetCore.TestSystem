@@ -1,4 +1,5 @@
 ﻿using Kernel.Exceptions;
+using Kernel.Responses;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System;
@@ -26,36 +27,50 @@ namespace Kernel.Middlewares
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, ex.Message);
                 await HandleExceptionAsync(context, ex);
             }
         }
 
-        private static Task HandleExceptionAsync(HttpContext context, Exception exception)
+        private Task HandleExceptionAsync(HttpContext context, Exception exception)
         {
-            context.Response.ContentType = "application/json";
-            context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+            LogException(exception);
 
-            string message = exception.Message;
-
-            BaseResponse baseResponse = new BaseResponse
+            ErrorResponse errorResponse = new ErrorResponse
             {
                 StatusCode = context.Response.StatusCode
             };
 
             if (exception is DomainException domainException)
             {
+                context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+
                 foreach (var error in domainException.DomainErrors)
                 {
-                    baseResponse.AddError(
+                    errorResponse.AddError(
                         code: error.ErrorCode,
                         userMessage: error.ErrorMessage,
                         details: $"Validation for '{error.PropertyName}' with value '{error.AttemptedValue}' failed in {error.ClassName}",
                         message: "Validation failed");
                 }
             }
+            else
+            {
+                context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                errorResponse.AddError(
+                        code: nameof(HttpStatusCode.InternalServerError),
+                        details: exception.StackTrace,
+                        message: exception.Message,
+                        userMessage: string.Empty);
+            }
 
-            return context.Response.WriteAsync(baseResponse.ToString());
+            context.Response.ContentType = "application/json";
+
+            return context.Response.WriteAsync(errorResponse.ToString());
+        }
+
+        private void LogException(Exception exception)
+        {
+            _logger.LogError($"Exception occured {exception}");
         }
 
     }

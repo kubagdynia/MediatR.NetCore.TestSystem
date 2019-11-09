@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Kernel
+namespace Kernel.Responses.Domain
 {
     public class BaseDomainResponse
     {
