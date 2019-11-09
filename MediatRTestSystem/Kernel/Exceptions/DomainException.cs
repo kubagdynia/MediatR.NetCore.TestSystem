@@ -11,10 +11,10 @@ namespace Kernel.Exceptions
         {
         }
 
-        public void AddDomainError(string errorCode, string errorMessage, string propertyName, object attemptedValue,
+        public void AddDomainError(string errorCode, string errorMessage, string propertyName, object attemptedValue, string className = "",
             DomainErrorType errorType = DomainErrorType.Error)
         {
-            DomainErrors.Add(new DomainError(errorCode, errorMessage, propertyName, attemptedValue, errorType));
+            DomainErrors.Add(new DomainError(errorCode, errorMessage, propertyName, attemptedValue, className, errorType));
         }
     }
 
@@ -25,14 +25,16 @@ namespace Kernel.Exceptions
         public string PropertyName { get; }
         public object AttemptedValue { get; }
         public DomainErrorType ErrorType { get; }
+        public string ClassName { get; }
         
-        public DomainError(string errorCode, string errorMessage, string propertyName, object attemptedValue,
+        public DomainError(string errorCode, string errorMessage, string propertyName, object attemptedValue, string className,
             DomainErrorType errorType = DomainErrorType.Error)
         {
             ErrorCode = errorCode;
             ErrorMessage = errorMessage;
             PropertyName = propertyName;
             AttemptedValue = attemptedValue;
+            ClassName = className;
             ErrorType = errorType;
         }
     }

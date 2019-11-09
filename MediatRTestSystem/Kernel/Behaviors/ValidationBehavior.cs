@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using FluentValidation.Results;
 using Kernel.Exceptions;
+using Kernel.Responses.Domain;
 using MediatR;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,7 +40,8 @@ namespace Kernel.Behaviors
 
             foreach (ValidationFailure error in errors)
             {
-                exception.AddDomainError(error.ErrorCode, error.ErrorMessage, error.PropertyName, error.AttemptedValue, GetErrorType(error.Severity));
+                exception.AddDomainError(error.ErrorCode, error.ErrorMessage, error.PropertyName, error.AttemptedValue,
+                    typeof(TRequest).Name, GetErrorType(error.Severity));
             }
 
             throw exception;
