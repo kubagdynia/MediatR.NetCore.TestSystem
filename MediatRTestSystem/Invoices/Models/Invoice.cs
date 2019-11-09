@@ -8,6 +8,11 @@ namespace Invoices.Models
         public string? Number { get; set; }
         public DateTime CreationDate { get; set; }
 
+        public Invoice()
+        {
+
+        }
+
         public Invoice(Guid id, string? number, DateTime creationDate)
         {
             Id = id;
