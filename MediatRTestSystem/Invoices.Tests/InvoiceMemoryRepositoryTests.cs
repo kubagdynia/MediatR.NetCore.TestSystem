@@ -16,7 +16,7 @@ namespace Invoices.Tests
         [TestCase(1000)]
         public void After_adding_a_certain_amount_of_invoices_the_repository_should_contain_the_same_amount_of_invoices(int count)
         {
-            // Arrage
+            // Arrange
             IInvoiceRepository invoiceRepository = new InvoiceMemoryRepository();
             CreateRandomInvoices(invoiceRepository, count);
 
@@ -32,7 +32,7 @@ namespace Invoices.Tests
         {
             Guid invoiceId = Guid.NewGuid();
 
-            // Arrage
+            // Arrange
             IInvoiceRepository invoiceRepository = new InvoiceMemoryRepository();
             CreateRandomInvoices(invoiceRepository, 2);
             invoiceRepository.Create(new Invoice(invoiceId, "J/03/2019", new DateTime(2019, 12, 05)));
@@ -51,7 +51,7 @@ namespace Invoices.Tests
         {
             Guid invoiceId = Guid.NewGuid();
 
-            // Arrage
+            // Arrange
             IInvoiceRepository invoiceRepository = new InvoiceMemoryRepository();
             CreateRandomInvoices(invoiceRepository, 1);
             invoiceRepository.Create(new Invoice(invoiceId, "J/02/2019", new DateTime(2019, 11, 15)));
@@ -69,7 +69,7 @@ namespace Invoices.Tests
         {
             Invoice testInvoice = new Invoice(Guid.NewGuid(), "J/02/2019", new DateTime(2019, 11, 15));
 
-            // Arrage
+            // Arrange
             IInvoiceRepository invoiceRepository = new InvoiceMemoryRepository();
             invoiceRepository.Create(testInvoice);
             CreateRandomInvoices(invoiceRepository, 2);
@@ -86,7 +86,7 @@ namespace Invoices.Tests
         [TestCase(1000)]
         public void Invoices_should_be_correctly_added_from_the_constructor(int count)
         {
-            // Arrage
+            // Arrange
             IInvoiceRepository invoiceRepository = new InvoiceMemoryRepository(CreateRandomInvoices(count));
 
             // Act
@@ -96,7 +96,7 @@ namespace Invoices.Tests
             invoices.Should().HaveCount(count);
         }
 
-        public void CreateRandomInvoices(IInvoiceRepository invoiceRepository, int count)
+        private void CreateRandomInvoices(IInvoiceRepository invoiceRepository, int count)
         {
             foreach (Invoice invoice in CreateRandomInvoices(count))
             {
@@ -104,7 +104,7 @@ namespace Invoices.Tests
             }
         }
 
-        public List<Invoice> CreateRandomInvoices(int count)
+        private List<Invoice> CreateRandomInvoices(int count)
         {
             var invoiceFaker = new Faker<Invoice>()
                 .StrictMode(true)
