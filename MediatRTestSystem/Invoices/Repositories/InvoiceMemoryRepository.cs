@@ -7,31 +7,37 @@ namespace Invoices.Repositories
 {
     public class InvoiceMemoryRepository : IInvoiceRepository
     {
-        private static readonly List<Invoice> Invoices = new List<Invoice>
+        private readonly List<Invoice> _invoices;
+
+        public InvoiceMemoryRepository()
         {
-            new Invoice(id: Guid.NewGuid(), number: "1/1/2019", creationDate: DateTime.UtcNow ),
-            new Invoice(id: Guid.NewGuid(), number: "1/2/2019", creationDate: DateTime.UtcNow )
-        };
+            _invoices = new List<Invoice>();
+        }
+
+        public InvoiceMemoryRepository(List<Invoice> initialInvoicesData)
+        {
+            _invoices = initialInvoicesData;
+        }
 
         public Guid Create(Invoice invoice)
         {
-            Invoices.Add(invoice);
+            _invoices.Add(invoice);
             return invoice.Id;
         }
 
         public IEnumerable<Invoice> Get()
         {
-            return Invoices;
+            return _invoices;
         }
 
         public Invoice Get(Guid id)
         {
-            return Invoices.FirstOrDefault(c => c.Id == id);
+            return _invoices.FirstOrDefault(c => c.Id == id);
         }
 
         public bool Remove(Guid id)
         {
-            return Invoices.RemoveAll(c => c.Id == id) > 0;
+            return _invoices.RemoveAll(c => c.Id == id) > 0;
         }
     }
 }

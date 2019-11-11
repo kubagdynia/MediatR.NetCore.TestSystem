@@ -5,11 +5,13 @@ VisualStudioVersion = 16.0.29424.173
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Api", "Api\Api.csproj", "{719B6923-741E-402A-B2D9-ED7769C918FD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kernel.BaseApi", "Kernel.BaseApi\Kernel.BaseApi.csproj", "{3E830583-0850-4A57-B067-8BD091569BD5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kernel.BaseApi", "Kernel.BaseApi\Kernel.BaseApi.csproj", "{3E830583-0850-4A57-B067-8BD091569BD5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kernel", "Kernel\Kernel.csproj", "{7EFC642B-45EA-4285-AD79-25D729EE23F8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kernel", "Kernel\Kernel.csproj", "{7EFC642B-45EA-4285-AD79-25D729EE23F8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Invoices", "Invoices\Invoices.csproj", "{CCF95C80-8450-453F-93D9-E4187D550D8C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Invoices", "Invoices\Invoices.csproj", "{CCF95C80-8450-453F-93D9-E4187D550D8C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Invoices.Tests", "Invoices.Tests\Invoices.Tests.csproj", "{2AC6697C-F547-436E-815B-52FBC4DE729A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{CCF95C80-8450-453F-93D9-E4187D550D8C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CCF95C80-8450-453F-93D9-E4187D550D8C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CCF95C80-8450-453F-93D9-E4187D550D8C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2AC6697C-F547-436E-815B-52FBC4DE729A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2AC6697C-F547-436E-815B-52FBC4DE729A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2AC6697C-F547-436E-815B-52FBC4DE729A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2AC6697C-F547-436E-815B-52FBC4DE729A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
