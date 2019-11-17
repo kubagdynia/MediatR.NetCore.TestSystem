@@ -23,11 +23,10 @@ namespace Api
         {
             base.ConfigureServices(services);
 
-            services.AddInvoices(registerValidators: true);
-
-            services.AddHangfire();
-
-            services.AddSwagger<Startup>(includeXmlComments: true, name: "v1", title: "My API", version: "v1");
+            services
+                .AddInvoices(registerValidators: true)
+                .AddHangfire(Configuration)
+                .AddSwagger<Startup>(includeXmlComments: true, name: "v1", title: "My API", version: "v1");
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
