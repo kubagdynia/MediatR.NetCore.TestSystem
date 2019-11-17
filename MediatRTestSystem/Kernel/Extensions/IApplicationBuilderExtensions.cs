@@ -1,4 +1,5 @@
-﻿using Kernel.Middlewares;
+﻿using Hangfire;
+using Kernel.Middlewares;
 using Microsoft.AspNetCore.Builder;
 
 namespace Kernel.Extensions
@@ -17,6 +18,14 @@ namespace Kernel.Extensions
             {
                 c.SwaggerEndpoint(url: url, name: name);
             });
+        }
+
+        public static void UseCustomHangfire(this IApplicationBuilder app, bool useDashboard = true)
+        {
+            if (useDashboard)
+            {
+                app.UseHangfireDashboard();
+            }
         }
     }
 }

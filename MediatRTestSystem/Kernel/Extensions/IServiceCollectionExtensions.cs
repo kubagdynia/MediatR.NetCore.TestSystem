@@ -8,6 +8,7 @@ using System.Reflection;
 using Microsoft.OpenApi.Models;
 using System.IO;
 using Swashbuckle.AspNetCore.Filters;
+using Hangfire;
 
 namespace Kernel.Extensions
 {
@@ -68,6 +69,17 @@ namespace Kernel.Extensions
             {
                 services.AddSwaggerExamplesFromAssemblyOf<T>();
             }
+        }
+
+        public static void AddHangfire(this IServiceCollection services)
+        {
+            services.AddHangfire(x => x.UseSqlServerStorage(@"Data Source=XXX;Initial Catalog=HangFireTest;Integrated Security=True;MultipleActiveResultSets=True;"));
+
+            services.AddHangfireServer(options =>
+            {
+                options.WorkerCount = Environment.ProcessorCount * 5;
+                options.Queues = new[] { "critical", "default" };
+            });
         }
     }
 }
