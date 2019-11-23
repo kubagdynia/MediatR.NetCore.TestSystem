@@ -4,6 +4,7 @@ using Invoices.Commands;
 using Invoices.Models;
 using Invoices.Queries;
 using Kernel.Controllers;
+using Kernel.Messages;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -17,9 +18,12 @@ namespace Api.Controllers.V1
     [Route("api/v1/[controller]")]
     public class InvoicesController : BaseController
     {
-        private readonly IMediator _mediator;
+        private readonly IMessageManager _messageManager;
 
-        public InvoicesController(IMediator mediator) => _mediator = mediator;
+        public InvoicesController(IMessageManager messageManager)
+        {
+            _messageManager = messageManager;
+        }
 
         /// <summary>
         /// Returns a list of all invoices
@@ -33,7 +37,7 @@ namespace Api.Controllers.V1
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<ActionResult<InvoicesResponse>> GetInvoices()
         {
-            GetInvoicesQueryResponse result = await _mediator.Send(new GetInvoicesQuery());
+            GetInvoicesQueryResponse result = await _messageManager.Send(new GetInvoicesQuery());
 
             if (result.Invoices is null || !result.Invoices.Any())
             {
@@ -59,7 +63,7 @@ namespace Api.Controllers.V1
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetInvoice([FromRoute] GetInvoiceRequest query)
         {
-            GetInvoiceQueryResponse result = await _mediator.Send(new GetInvoiceQuery(query.Id));
+            GetInvoiceQueryResponse result = await _messageManager.Send(new GetInvoiceQuery(query.Id));
 
             if (result.Invoice is null)
             {
@@ -85,7 +89,7 @@ namespace Api.Controllers.V1
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CreateInvoice([FromBody] CreateInvoiceRequest request)
         {
-            CreateInvoiceCommandResponse result = await _mediator.Send(
+            CreateInvoiceCommandResponse result = await _messageManager.Send(
                 new CreateInvoiceCommand(new Invoice(id: Guid.NewGuid(), number: request.Number, creationDate: request.CreationDate)));
 
             return CreatedAtAction(nameof(GetInvoice), new GetInvoiceRequest { Id = result.Id },
@@ -103,7 +107,7 @@ namespace Api.Controllers.V1
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Delete(Guid id)
         {
-            RemoveInvoiceCommandResponse result = await _mediator.Send(new RemoveInvoiceCommand(id));
+            RemoveInvoiceCommandResponse result = await _messageManager.Send(new RemoveInvoiceCommand(id));
             
             if (result.Removed)
             {

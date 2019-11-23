@@ -1,5 +1,6 @@
 ﻿using Invoices.Events;
 using Invoices.Repositories;
+using Kernel.Messages;
 using MediatR;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,12 +10,12 @@ namespace Invoices.Commands.Handlers
     public class CreateInvoiceHandler : IRequestHandler<CreateInvoiceCommand, CreateInvoiceCommandResponse>
     {
         private readonly IInvoiceRepository _invoiceRepository;
-        private readonly IMediator _mediator;
+        private readonly IMessageManager _messageManager;
 
-        public CreateInvoiceHandler(IInvoiceRepository invoiceRepository, IMediator mediator)
+        public CreateInvoiceHandler(IInvoiceRepository invoiceRepository, IMessageManager messageManager)
         {
             _invoiceRepository = invoiceRepository;
-            _mediator = mediator;
+            _messageManager = messageManager;
         }
 
         public Task<CreateInvoiceCommandResponse> Handle(CreateInvoiceCommand request, CancellationToken cancellationToken)
@@ -30,7 +31,7 @@ namespace Invoices.Commands.Handlers
             var id = _invoiceRepository.Create(request.Invoice);
             response.Id = id;
 
-            _mediator.Publish(new InvoiceCreatedEvent(id));
+            _messageManager.Publish(new InvoiceCreatedEvent(id));
 
             return Task.FromResult(response);
         }

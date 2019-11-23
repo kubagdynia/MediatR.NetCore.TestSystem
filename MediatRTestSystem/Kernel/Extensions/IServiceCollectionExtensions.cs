@@ -11,6 +11,7 @@ using Swashbuckle.AspNetCore.Filters;
 using Hangfire;
 using Microsoft.Extensions.DependencyInjection;
 using Kernel.Configurations;
+using Kernel.Messages;
 
 namespace Kernel.Extensions
 {
@@ -38,6 +39,9 @@ namespace Kernel.Extensions
 
             services.AddScoped(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
             services.AddScoped(typeof(IPipelineBehavior<,>), typeof(RequestPostProcessorBehavior<,>));
+
+            services.AddScoped<IMessageExecutor, MessageExecutor>();
+            services.AddScoped<IMessageManager, MessageManager>();
 
             return services;
         }
@@ -77,11 +81,11 @@ namespace Kernel.Extensions
 
         public static IServiceCollection AddHangfire(this IServiceCollection services, IConfiguration config)
         {
-            HangfireConfiguration? hangfireConfiguration = config.GetSection("Hangfire").Get<HangfireConfiguration>();
+            HangfireConfiguration? hangfireConfiguration = config.GetSection(HangfireConfiguration.SectionName).Get<HangfireConfiguration>();
 
-            if (hangfireConfiguration is null)
+            if (hangfireConfiguration is null || !hangfireConfiguration.Enabled)
             {
-                throw new ArgumentNullException(nameof(hangfireConfiguration));
+                return services;
             }
 
             services.AddHangfire(x => x.UseSqlServerStorage(hangfireConfiguration.ConnectionString));
@@ -102,6 +106,13 @@ namespace Kernel.Extensions
                     options.Queues = new[] { "default" };
                 }
             });
+
+            return services;
+        }
+
+        public static IServiceCollection AddAppConfiguration(this IServiceCollection services, IConfiguration config)
+        {
+            services.Configure<HangfireConfiguration>(config.GetSection(HangfireConfiguration.SectionName));
 
             return services;
         }

@@ -1,6 +1,8 @@
 ﻿using Hangfire;
+using Kernel.Configurations;
 using Kernel.Middlewares;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Configuration;
 
 namespace Kernel.Extensions
 {
@@ -20,12 +22,16 @@ namespace Kernel.Extensions
             });
         }
 
-        public static void UseCustomHangfire(this IApplicationBuilder app, bool useDashboard = true)
+        public static void UseCustomHangfire(this IApplicationBuilder app, IConfiguration config, bool useDashboard = true)
         {
-            if (useDashboard)
+            HangfireConfiguration? hangfireConfiguration = config.GetSection(HangfireConfiguration.SectionName).Get<HangfireConfiguration>();
+
+            if (hangfireConfiguration is null || !hangfireConfiguration.Enabled || !hangfireConfiguration.UseDashboard)
             {
-                app.UseHangfireDashboard();
+                return;
             }
+
+            app.UseHangfireDashboard();
         }
     }
 }

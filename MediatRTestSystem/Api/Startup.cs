@@ -25,6 +25,7 @@ namespace Api
 
             services
                 .AddInvoices(registerValidators: true)
+                .AddAppConfiguration(Configuration)
                 .AddHangfire(Configuration)
                 .AddSwagger<Startup>(includeXmlComments: true, name: "v1", title: "My API", version: "v1");
         }
@@ -34,7 +35,7 @@ namespace Api
         {
             base.Configure(app, env);
 
-            app.UseCustomHangfire();
+            app.UseCustomHangfire(Configuration);
 
             app.UseCustomSwagger("/swagger/v1/swagger.json", "My API V1");
         }
