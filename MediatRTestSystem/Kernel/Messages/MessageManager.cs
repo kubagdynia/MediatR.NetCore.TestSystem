@@ -36,6 +36,37 @@ namespace Kernel.Messages
             }
         }
 
+        public void PublishSchedule(INotification notification, DateTimeOffset scheduleAt)
+        {
+            if (_hangfireConfig.Enabled)
+            {
+                var mediatorSerializedObject = SerializeObject(notification);
+
+                BackgroundJob.Schedule(() => _messageExecutor.ExecuteEvent(mediatorSerializedObject), scheduleAt);
+            }
+        }
+
+        public void PublishSchedule(INotification notification, TimeSpan delay)
+        {
+            if (_hangfireConfig.Enabled)
+            {
+                var mediatorSerializedObject = SerializeObject(notification);
+                var newTime = DateTime.Now + delay;
+
+                BackgroundJob.Schedule(() => _messageExecutor.ExecuteEvent(mediatorSerializedObject), newTime);
+            }
+        }
+
+        public void PublishScheduleRecurring(INotification notification, string name, string cronExpression)
+        {
+            if (_hangfireConfig.Enabled)
+            {
+                var mediatorSerializedObject = SerializeObject(notification);
+
+                RecurringJob.AddOrUpdate(name, () => _messageExecutor.ExecuteEvent(mediatorSerializedObject), cronExpression, TimeZoneInfo.Local);
+            }
+        }
+
         public void Send(IRequest request)
         {
             if (_hangfireConfig.Enabled)
