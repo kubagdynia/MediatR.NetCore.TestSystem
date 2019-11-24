@@ -32,7 +32,7 @@ namespace Invoices.Commands.Handlers
             var id = _invoiceRepository.Create(request.Invoice);
             response.Id = id;
 
-            _messageManager.Publish(new InvoiceCreatedEvent(id));
+            _messageManager.EmitEvent(new InvoiceCreatedEvent(id));
 
             return Task.FromResult(response);
         }

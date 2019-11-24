@@ -7,22 +7,24 @@ namespace Kernel.Messages
 {
     public interface IMessageManager
     {
-        void Publish(INotification notification);
+        void EmitEvent(INotification notification);
 
-        void PublishSchedule(INotification notification, DateTimeOffset scheduleAt);
+        string EmitScheduledEvent(INotification notification, DateTimeOffset scheduleAt);
 
-        void PublishSchedule(INotification notification, TimeSpan delay);
+        string EmitScheduledEvent(INotification notification, TimeSpan delay);
 
-        void PublishScheduleRecurring(INotification notification, string name, string cronExpression);
+        void EmitScheduledRecurringEvent(INotification notification, string recurringJobId, string cronExpression);
 
-        void Send(IRequest request);
+        void SendCommand(IRequest request);
 
-        void Send(IRequest request, string parentJobId, JobContinuationOptions continuationOption);
+        string SendCommand(IRequest request, string parentJobId, JobContinuationOptions continuationOption);
 
-        Task<TResponse> Send<TResponse>(IRequest<TResponse> request);
+        Task<TResponse> SendCommand<TResponse>(IRequest<TResponse> request);
 
-        void Schedule(IRequest request, DateTimeOffset scheduleAt);
+        string SendScheduledCommand(IRequest request, DateTimeOffset scheduleAt);
 
-        void Schedule(IRequest request, TimeSpan delay);
+        string SendScheduledCommand(IRequest request, TimeSpan delay);
+
+        void SendScheduledRecurringCommand(IRequest request, string recurringJobId, string cronExpression);
     }
 }
