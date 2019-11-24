@@ -2,6 +2,8 @@
 using Invoices.Models;
 using Invoices.Repositories;
 using Kernel.Behaviors;
+using Kernel.Configurations;
+using Kernel.Messages;
 using MediatR;
 using MediatR.Pipeline;
 using Microsoft.Extensions.DependencyInjection;
@@ -27,8 +29,13 @@ namespace Invoices.Tests
 
             services.AddMediatR(typeof(Invoice));
 
+            services.Configure<HangfireConfiguration>(configuration => configuration.Enabled = false);
+
             services.AddScoped(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
             services.AddScoped(typeof(IPipelineBehavior<,>), typeof(RequestPostProcessorBehavior<,>));
+
+            services.AddScoped<IMessageExecutor, MessageExecutor>();
+            services.AddScoped<IMessageManager, MessageManager>();
 
             return services;
         }

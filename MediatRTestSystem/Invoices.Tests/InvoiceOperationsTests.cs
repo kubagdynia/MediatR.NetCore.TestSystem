@@ -13,6 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
 using Invoices.Events;
 using Invoices.Tests.Fakes;
+using Kernel.Messages;
 
 namespace Invoices.Tests
 {
@@ -31,7 +32,8 @@ namespace Invoices.Tests
             {
                 var scopedServices = scope.ServiceProvider;
 
-                IMediator mediator = scopedServices.GetRequiredService<IMediator>();
+                IMessageManager messageManager = scopedServices.GetRequiredService<IMessageManager>();
+
 
                 // Arrange
 
@@ -43,12 +45,12 @@ namespace Invoices.Tests
                 // Act
                 for (int i = 0; i < count; i++)
                 {
-                    CreateInvoiceCommandResponse createInvoiceResponse = await mediator.Send(
+                    CreateInvoiceCommandResponse createInvoiceResponse = await messageManager.Send(
                         new CreateInvoiceCommand(new Invoice(id: Guid.NewGuid(), number: "J/01/2019", creationDate: DateTime.Now)));
                     createInvoiceResponses.Add(createInvoiceResponse);
                 }
 
-                GetInvoicesQueryResponse queryResponse = await mediator.Send(new GetInvoicesQuery());
+                GetInvoicesQueryResponse queryResponse = await messageManager.Send(new GetInvoicesQuery());
 
                 // Assert
                 queryResponse.Invoices.Should().HaveCount(count);
@@ -76,7 +78,7 @@ namespace Invoices.Tests
             {
                 var scopedServices = scope.ServiceProvider;
 
-                IMediator mediator = scopedServices.GetRequiredService<IMediator>();
+                IMessageManager messageManager = scopedServices.GetRequiredService<IMessageManager>();
 
                 // Arrange
 
@@ -88,7 +90,7 @@ namespace Invoices.Tests
                 // Act
                 for (int i = 0; i < count; i++)
                 {
-                    CreateInvoiceCommandResponse createInvoiceResponse = await mediator.Send(
+                    CreateInvoiceCommandResponse createInvoiceResponse = await messageManager.Send(
                         new CreateInvoiceCommand(new Invoice(id: Guid.NewGuid(), number: "JK/02/2019", creationDate: DateTime.Now)));
                     createInvoiceResponses.Add(createInvoiceResponse);
                 }
@@ -96,7 +98,7 @@ namespace Invoices.Tests
                 // Assert
                 foreach (var createdInvoice in createInvoiceResponses)
                 {
-                    GetInvoiceQueryResponse queryResponse = await mediator.Send(new GetInvoiceQuery(createdInvoice.Id));
+                    GetInvoiceQueryResponse queryResponse = await messageManager.Send(new GetInvoiceQuery(createdInvoice.Id));
                     queryResponse.Invoice.Should().NotBeNull();
                     queryResponse.Invoice.Id.ToString().Should().BeEquivalentTo(createdInvoice.Id.ToString());
                 }
@@ -115,7 +117,7 @@ namespace Invoices.Tests
             {
                 var scopedServices = scope.ServiceProvider;
 
-                IMediator mediator = scopedServices.GetRequiredService<IMediator>();
+                IMessageManager messageManager = scopedServices.GetRequiredService<IMessageManager>();
 
                 // Arrange
 
@@ -127,7 +129,7 @@ namespace Invoices.Tests
                 // Act
                 for (int i = 0; i < count; i++)
                 {
-                    CreateInvoiceCommandResponse createInvoiceResponse = await mediator.Send(
+                    CreateInvoiceCommandResponse createInvoiceResponse = await messageManager.Send(
                         new CreateInvoiceCommand(new Invoice(id: Guid.NewGuid(), number: "JK/02/2019", creationDate: DateTime.Now)));
                     createInvoiceResponses.Add(createInvoiceResponse);
                 }
@@ -135,12 +137,12 @@ namespace Invoices.Tests
                 // Assert
                 foreach (var createdInvoice in createInvoiceResponses)
                 {
-                    RemoveInvoiceCommandResponse removeResponse = await mediator.Send(new RemoveInvoiceCommand(createdInvoice.Id));
+                    RemoveInvoiceCommandResponse removeResponse = await messageManager.Send(new RemoveInvoiceCommand(createdInvoice.Id));
                     removeResponse.Removed.Should().BeTrue();
                 }
 
                 // Repo should be empty
-                GetInvoicesQueryResponse queryResponse = await mediator.Send(new GetInvoicesQuery());
+                GetInvoicesQueryResponse queryResponse = await messageManager.Send(new GetInvoicesQuery());
                 queryResponse.Invoices.Should().HaveCount(0);
             }
         }
@@ -158,13 +160,13 @@ namespace Invoices.Tests
             {
                 var scopedServices = scope.ServiceProvider;
 
-                var mediator = scopedServices.GetRequiredService<IMediator>();
+                IMessageManager messageManager = scopedServices.GetRequiredService<IMessageManager>();
 
                 var invoiceRepository = scopedServices.GetRequiredService<IInvoiceRepository>();                
 
                 DomainException ex = Assert.ThrowsAsync<DomainException>(async () =>
                 {
-                    _ = await mediator.Send(
+                    _ = await messageManager.Send(
                         new CreateInvoiceCommand(new Invoice(id: Guid.NewGuid(), number: invalidInvoiceNumber,
                             creationDate: DateTime.Now)));
                 });
@@ -173,7 +175,7 @@ namespace Invoices.Tests
                 ex.DomainErrors.First().ErrorCode.Should().BeEquivalentTo("LengthValidator");
                 ex.DomainErrors.First().PropertyName.Should().BeEquivalentTo("Invoice.Number");
 
-                GetInvoicesQueryResponse result = await mediator.Send(new GetInvoicesQuery());
+                GetInvoicesQueryResponse result = await messageManager.Send(new GetInvoicesQuery());
 
                 result.Invoices.Should().HaveCount(0);
             }
@@ -201,7 +203,7 @@ namespace Invoices.Tests
             {
                 var scopedServices = scope.ServiceProvider;
 
-                IMediator mediator = scopedServices.GetRequiredService<IMediator>();
+                IMessageManager messageManager = scopedServices.GetRequiredService<IMessageManager>();
 
                 // empty repository
                 var invoiceRepository = scopedServices.GetRequiredService<IInvoiceRepository>();
@@ -211,7 +213,7 @@ namespace Invoices.Tests
                 // Act
                 for (int i = 0; i < count; i++)
                 {
-                    CreateInvoiceCommandResponse createInvoiceResponse = await mediator.Send(
+                    CreateInvoiceCommandResponse createInvoiceResponse = await messageManager.Send(
                         new CreateInvoiceCommand(new Invoice(id: Guid.NewGuid(), number: "J/01/2019", creationDate: DateTime.Now)));
                 }
 
@@ -242,14 +244,14 @@ namespace Invoices.Tests
             {
                 var scopedServices = scope.ServiceProvider;
 
-                IMediator mediator = scopedServices.GetRequiredService<IMediator>();
+                IMessageManager messageManager = scopedServices.GetRequiredService<IMessageManager>();
 
                 Counter counter = scopedServices.GetRequiredService<Counter>();
 
                 // Act
                 for (int i = 0; i < count; i++)
                 {
-                    GetInvoiceQueryResponse queryResponse = await mediator.Send(new GetInvoiceQuery(Guid.NewGuid()));
+                    GetInvoiceQueryResponse queryResponse = await messageManager.Send(new GetInvoiceQuery(Guid.NewGuid()));
                 }
 
                 // Assert
@@ -279,14 +281,14 @@ namespace Invoices.Tests
             {
                 var scopedServices = scope.ServiceProvider;
 
-                IMediator mediator = scopedServices.GetRequiredService<IMediator>();
+                IMessageManager messageManager = scopedServices.GetRequiredService<IMessageManager>();
 
                 Counter counter = scopedServices.GetRequiredService<Counter>();
 
                 // Act
                 for (int i = 0; i < count; i++)
                 {
-                    GetInvoicesQueryResponse queryResponse = await mediator.Send(new GetInvoicesQuery());
+                    GetInvoicesQueryResponse queryResponse = await messageManager.Send(new GetInvoicesQuery());
                 }
 
                 // Assert
@@ -316,14 +318,14 @@ namespace Invoices.Tests
             {
                 var scopedServices = scope.ServiceProvider;
 
-                IMediator mediator = scopedServices.GetRequiredService<IMediator>();
+                IMessageManager messageManager = scopedServices.GetRequiredService<IMessageManager>();
 
                 Counter counter = scopedServices.GetRequiredService<Counter>();
 
                 // Act
                 for (int i = 0; i < count; i++)
                 {
-                    CreateInvoiceCommandResponse createInvoiceResponse = await mediator.Send(
+                    CreateInvoiceCommandResponse createInvoiceResponse = await messageManager.Send(
                         new CreateInvoiceCommand(new Invoice(id: Guid.NewGuid(), number: "J/01/2019", creationDate: DateTime.Now)));
                 }
 
@@ -354,14 +356,14 @@ namespace Invoices.Tests
             {
                 var scopedServices = scope.ServiceProvider;
 
-                IMediator mediator = scopedServices.GetRequiredService<IMediator>();
+                IMessageManager messageManager = scopedServices.GetRequiredService<IMessageManager>();
 
                 Counter counter = scopedServices.GetRequiredService<Counter>();
 
                 // Act
                 for (int i = 0; i < count; i++)
                 {
-                    RemoveInvoiceCommandResponse removeResponse = await mediator.Send(new RemoveInvoiceCommand(Guid.NewGuid()));
+                    RemoveInvoiceCommandResponse removeResponse = await messageManager.Send(new RemoveInvoiceCommand(Guid.NewGuid()));
                 }
 
                 // Assert

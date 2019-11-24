@@ -23,15 +23,19 @@ namespace Api
         {
             base.ConfigureServices(services);
 
-            services.AddInvoices(registerValidators: true);
-
-            services.AddSwagger<Startup>(includeXmlComments: true, name: "v1", title: "My API", version: "v1");
+            services
+                .AddInvoices(registerValidators: true)
+                .AddAppConfiguration(Configuration)
+                .AddHangfire(Configuration)
+                .AddSwagger<Startup>(includeXmlComments: true, name: "v1", title: "My API", version: "v1");
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public override void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            base.Configure(app, env);            
+            base.Configure(app, env);
+
+            app.UseCustomHangfire(Configuration);
 
             app.UseCustomSwagger("/swagger/v1/swagger.json", "My API V1");
         }
