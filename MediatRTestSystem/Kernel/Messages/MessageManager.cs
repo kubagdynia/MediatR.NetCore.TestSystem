@@ -22,7 +22,11 @@ namespace Kernel.Messages
             _hangfireConfig = hangfireConfig.Value;
         }
 
-        public void Publish(INotification notification)
+        /// <summary>
+        /// Emit only once and almost immediately after creation. 
+        /// </summary>
+        /// <param name="notification">Notification to be emitted.</param>
+        public void EmitEvent(INotification notification)
         {
             if (_hangfireConfig.Enabled)
             {
@@ -36,38 +40,58 @@ namespace Kernel.Messages
             }
         }
 
-        public void PublishSchedule(INotification notification, DateTimeOffset scheduleAt)
+        /// <summary>
+        /// Emit only once, but not immediately, after a certain time interval.
+        /// </summary>
+        /// <param name="notification">Notification to be emitted.</param>
+        /// <param name="scheduleAt">The moment of time at which the job will be enqueued.</param>
+        /// <returns>Unique identifier of a created job.</returns>
+        public string EmitScheduledEvent(INotification notification, DateTimeOffset scheduleAt)
         {
-            if (_hangfireConfig.Enabled)
-            {
-                var mediatorSerializedObject = SerializeObject(notification);
+            CheckIfOperationIsSupported();
 
-                BackgroundJob.Schedule(() => _messageExecutor.ExecuteEvent(mediatorSerializedObject), scheduleAt);
-            }
+            var mediatorSerializedObject = SerializeObject(notification);
+            
+            return BackgroundJob.Schedule(() => _messageExecutor.ExecuteEvent(mediatorSerializedObject), scheduleAt);
         }
 
-        public void PublishSchedule(INotification notification, TimeSpan delay)
+        /// <summary>
+        /// Emit only once, but not immediately, after a certain time interval.
+        /// </summary>
+        /// <param name="notification">Notification to be emitted.</param>
+        /// <param name="delay">After what delay the job will be enqueued.</param>
+        /// <returns>Unique identifier of a created job.</returns>
+        public string EmitScheduledEvent(INotification notification, TimeSpan delay)
         {
-            if (_hangfireConfig.Enabled)
-            {
-                var mediatorSerializedObject = SerializeObject(notification);
-                var newTime = DateTime.Now + delay;
+            CheckIfOperationIsSupported();
 
-                BackgroundJob.Schedule(() => _messageExecutor.ExecuteEvent(mediatorSerializedObject), newTime);
-            }
+            var mediatorSerializedObject = SerializeObject(notification);
+            var newTime = DateTime.Now + delay;
+
+            return BackgroundJob.Schedule(() => _messageExecutor.ExecuteEvent(mediatorSerializedObject), newTime);
         }
 
-        public void PublishScheduleRecurring(INotification notification, string name, string cronExpression)
+        /// <summary>
+        /// Emit many times on the specified CRON schedule.
+        /// </summary>
+        /// <param name="notification">Notification to be emitted.</param>
+        /// <param name="recurringJobId">Recurring job id</param>
+        /// <param name="cronExpression">http://en.wikipedia.org/wiki/Cron#CRON_expression</param>
+        public void EmitScheduledRecurringEvent(INotification notification, string recurringJobId, string cronExpression)
         {
-            if (_hangfireConfig.Enabled)
-            {
-                var mediatorSerializedObject = SerializeObject(notification);
+            CheckIfOperationIsSupported();
+            
+            var mediatorSerializedObject = SerializeObject(notification);
 
-                RecurringJob.AddOrUpdate(name, () => _messageExecutor.ExecuteEvent(mediatorSerializedObject), cronExpression, TimeZoneInfo.Local);
-            }
+            RecurringJob.AddOrUpdate(recurringJobId, () => _messageExecutor.ExecuteEvent(mediatorSerializedObject),
+                cronExpression, TimeZoneInfo.Local);
         }
 
-        public void Send(IRequest request)
+        /// <summary>
+        /// Execute the command only once almost immediately after creation. 
+        /// </summary>
+        /// <param name="request">Request to be send.</param>
+        public void SendCommand(IRequest request)
         {
             if (_hangfireConfig.Enabled)
             {
@@ -81,55 +105,79 @@ namespace Kernel.Messages
             }
         }
 
-        public void Send(IRequest request, string parentJobId, JobContinuationOptions continuationOption)
+        /// <summary>
+        /// Execute the command only once but when its parent job has been finished. 
+        /// </summary>
+        /// <param name="request">Request to be send.</param>
+        /// <param name="parentJobId">Parent job id.</param>
+        /// <param name="continuationOption">Continuation option.</param>
+        /// <returns>Unique identifier of a created job.</returns>
+        public string SendCommand(IRequest request, string parentJobId, JobContinuationOptions continuationOption)
         {
-            if (_hangfireConfig.Enabled)
-            {
-                var mediatorSerializedObject = SerializeObject(request);
+            CheckIfOperationIsSupported();
 
-                BackgroundJob.ContinueJobWith(parentJobId, () => _messageExecutor.ExecuteCommand(mediatorSerializedObject), continuationOption);
-            }
-            else
-            {
-                _mediator.Send(request);
-            }
+            var mediatorSerializedObject = SerializeObject(request);
+
+            return BackgroundJob.ContinueJobWith(parentJobId,
+                () => _messageExecutor.ExecuteCommand(mediatorSerializedObject), continuationOption);
         }
 
-        public Task<TResponse> Send<TResponse>(IRequest<TResponse> request)
+        /// <summary>
+        /// Execute the command only once and return the result.
+        /// </summary>
+        /// <param name="request">Request to be send.</param>
+        /// <typeparam name="TResponse">Object that will be returned</typeparam>
+        /// <returns>Response from the command handler</returns>
+        public Task<TResponse> SendCommand<TResponse>(IRequest<TResponse> request)
         {
             var response = _mediator.Send(request);
             return response;
         }
 
-        public void Schedule(IRequest request, DateTimeOffset scheduleAt)
+        /// <summary>
+        /// Execute the command only once, but not immediately, after a certain time interval.
+        /// </summary>
+        /// <param name="request">Request to be send.</param>
+        /// <param name="scheduleAt">The moment of time at which the command will be executed.</param>
+        /// <returns>Unique identifier of a created job.</returns>
+        public string SendScheduledCommand(IRequest request, DateTimeOffset scheduleAt)
         {
-            if (_hangfireConfig.Enabled)
-            {
-                var mediatorSerializedObject = SerializeObject(request);
+            CheckIfOperationIsSupported();
 
-                BackgroundJob.Schedule(() => _messageExecutor.ExecuteCommand(mediatorSerializedObject), scheduleAt);
-            }
+            var mediatorSerializedObject = SerializeObject(request);
+
+            return BackgroundJob.Schedule(() => _messageExecutor.ExecuteCommand(mediatorSerializedObject), scheduleAt);
         }
 
-        public void Schedule(IRequest request, TimeSpan delay)
+        /// <summary>
+        /// Execute the command only once, but not immediately, after a certain time interval.
+        /// </summary>
+        /// <param name="request">Request to be send.</param>
+        /// <param name="delay">After what delay the command will be executed.</param>
+        /// <returns>Unique identifier of a created job.</returns>
+        public string SendScheduledCommand(IRequest request, TimeSpan delay)
         {
-            if (_hangfireConfig.Enabled)
-            {
-                var mediatorSerializedObject = SerializeObject(request);
-                var newTime = DateTime.Now + delay;
+            CheckIfOperationIsSupported();
+            
+            var mediatorSerializedObject = SerializeObject(request);
+            var newTime = DateTime.Now + delay;
 
-                BackgroundJob.Schedule(() => _messageExecutor.ExecuteCommand(mediatorSerializedObject), newTime);
-            }
+            return BackgroundJob.Schedule(() => _messageExecutor.ExecuteCommand(mediatorSerializedObject), newTime);
         }
 
-        public void ScheduleRecurring(IRequest request, string name, string cronExpression)
+        /// <summary>
+        /// Execute the command many times on the specified CRON schedule.
+        /// </summary>
+        /// <param name="request">Request to be send.</param>
+        /// <param name="recurringJobId">Recurring job id.</param>
+        /// <param name="cronExpression">http://en.wikipedia.org/wiki/Cron#CRON_expression</param>
+        public void SendScheduledRecurringCommand(IRequest request, string recurringJobId, string cronExpression)
         {
-            if (_hangfireConfig.Enabled)
-            {
-                var mediatorSerializedObject = SerializeObject(request);
-
-                RecurringJob.AddOrUpdate(name, () => _messageExecutor.ExecuteCommand(mediatorSerializedObject), cronExpression, TimeZoneInfo.Local);
-            }
+            CheckIfOperationIsSupported();
+            
+            var mediatorSerializedObject = SerializeObject(request);
+            
+            RecurringJob.AddOrUpdate(recurringJobId, () => _messageExecutor.ExecuteCommand(mediatorSerializedObject), cronExpression, TimeZoneInfo.Local);
         }
 
         private MediatorSerializedObject SerializeObject(object mediatorObject)
@@ -139,6 +187,14 @@ namespace Kernel.Messages
             string data = JsonSerializer.Serialize(mediatorObject, BaseJsonOptions.GetJsonSerializerOptions);
 
             return new MediatorSerializedObject(assemblyQualifiedName, data);
+        }
+        
+        private void CheckIfOperationIsSupported()
+        {
+            if (!_hangfireConfig.Enabled)
+            {
+                throw new NotSupportedException("Operation is not supported because Hangfire is off");
+            }
         }
     }
 }
