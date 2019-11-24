@@ -1,13 +1,17 @@
-﻿using FluentValidation;
+﻿using Microsoft.Extensions.Configuration;
+using FluentValidation;
 using Kernel.Behaviors;
 using MediatR;
 using MediatR.Pipeline;
-using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Reflection;
 using Microsoft.OpenApi.Models;
 using System.IO;
 using Swashbuckle.AspNetCore.Filters;
+using Hangfire;
+using Microsoft.Extensions.DependencyInjection;
+using Kernel.Configurations;
+using Kernel.Messages;
 
 namespace Kernel.Extensions
 {
@@ -36,14 +40,17 @@ namespace Kernel.Extensions
             services.AddScoped(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
             services.AddScoped(typeof(IPipelineBehavior<,>), typeof(RequestPostProcessorBehavior<,>));
 
+            services.AddScoped<IMessageExecutor, MessageExecutor>();
+            services.AddScoped<IMessageManager, MessageManager>();
+
             return services;
         }
 
-        public static void AddSwagger<T>(this IServiceCollection services, bool includeXmlComments = false,
+        public static IServiceCollection AddSwagger<T>(this IServiceCollection services, bool includeXmlComments = false,
             string name = "v1", string title = "My API", string version = "v1")
             => AddSwagger<T>(services, typeof(T).Assembly, includeXmlComments, name, title, version);
 
-        public static void AddSwagger<T>(this IServiceCollection services, Assembly assembly, bool includeXmlComments = false,
+        public static IServiceCollection AddSwagger<T>(this IServiceCollection services, Assembly assembly, bool includeXmlComments = false,
             string name = "v1", string title = "My API", string version = "v1")
         {
             services.AddSwaggerGen(c =>
@@ -68,6 +75,46 @@ namespace Kernel.Extensions
             {
                 services.AddSwaggerExamplesFromAssemblyOf<T>();
             }
+
+            return services;
+        }
+
+        public static IServiceCollection AddHangfire(this IServiceCollection services, IConfiguration config)
+        {
+            HangfireConfiguration? hangfireConfiguration = config.GetSection(HangfireConfiguration.SectionName).Get<HangfireConfiguration>();
+
+            if (hangfireConfiguration is null || !hangfireConfiguration.Enabled)
+            {
+                return services;
+            }
+
+            services.AddHangfire(x => x.UseSqlServerStorage(hangfireConfiguration.ConnectionString));
+
+            services.AddHangfireServer(options =>
+            {
+                if (hangfireConfiguration.MaxDefaultWorkerCount > 0)
+                {
+                    options.WorkerCount = Math.Min(Environment.ProcessorCount * 5, hangfireConfiguration.MaxDefaultWorkerCount);
+                }
+                
+                if (hangfireConfiguration.Queues != null && hangfireConfiguration.Queues.Length > 0)
+                {
+                    options.Queues = hangfireConfiguration.Queues;
+                }
+                else
+                {
+                    options.Queues = new[] { "default" };
+                }
+            });
+
+            return services;
+        }
+
+        public static IServiceCollection AddAppConfiguration(this IServiceCollection services, IConfiguration config)
+        {
+            services.Configure<HangfireConfiguration>(config.GetSection(HangfireConfiguration.SectionName));
+
+            return services;
         }
     }
 }

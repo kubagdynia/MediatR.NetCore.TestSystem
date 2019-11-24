@@ -7,6 +7,12 @@ namespace Invoices.Events
     {
         public Guid Id { get; set; }
 
+        // To ensure correct deserialization
+        protected InvoiceCreatedEvent()
+        {
+
+        }
+
         public InvoiceCreatedEvent(Guid id)
         {
             Id = id;
