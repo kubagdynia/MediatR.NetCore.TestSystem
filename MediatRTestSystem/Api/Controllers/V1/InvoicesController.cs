@@ -37,7 +37,7 @@ namespace Api.Controllers.V1
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<ActionResult<InvoicesResponse>> GetInvoices()
         {
-            GetInvoicesQueryResponse result = await _messageManager.Send(new GetInvoicesQuery());
+            GetInvoicesQueryResponse result = await _messageManager.SendCommand(new GetInvoicesQuery());
 
             if (result.Invoices is null || !result.Invoices.Any())
             {
@@ -63,7 +63,7 @@ namespace Api.Controllers.V1
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetInvoice([FromRoute] GetInvoiceRequest query)
         {
-            GetInvoiceQueryResponse result = await _messageManager.Send(new GetInvoiceQuery(query.Id));
+            GetInvoiceQueryResponse result = await _messageManager.SendCommand(new GetInvoiceQuery(query.Id));
 
             if (result.Invoice is null)
             {
@@ -89,7 +89,7 @@ namespace Api.Controllers.V1
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CreateInvoice([FromBody] CreateInvoiceRequest request)
         {
-            CreateInvoiceCommandResponse result = await _messageManager.Send(
+            CreateInvoiceCommandResponse result = await _messageManager.SendCommand(
                 new CreateInvoiceCommand(new Invoice(id: Guid.NewGuid(), number: request.Number, creationDate: request.CreationDate)));
 
             return CreatedAtAction(nameof(GetInvoice), new GetInvoiceRequest { Id = result.Id },
@@ -107,7 +107,7 @@ namespace Api.Controllers.V1
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Delete(Guid id)
         {
-            RemoveInvoiceCommandResponse result = await _messageManager.Send(new RemoveInvoiceCommand(id));
+            RemoveInvoiceCommandResponse result = await _messageManager.SendCommand(new RemoveInvoiceCommand(id));
             
             if (result.Removed)
             {
